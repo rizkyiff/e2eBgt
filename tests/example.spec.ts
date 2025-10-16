@@ -39,7 +39,7 @@ test("Test Authentication With Empty Login", async ({ page }) => {
 });
 
 
-test("Test Authentication2 2", async () => {
+test("Test Authentication2 23", async () => {
   // ...
 
   await allure.attachment("Text file", "This is the file content.", ContentType.TEXT);
