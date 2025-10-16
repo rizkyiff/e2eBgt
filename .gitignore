@@ -13,5 +13,3 @@ Thumbs.db
 .env.*
 .vscode/
 .idea/
-allure-results/
-allure-report/
