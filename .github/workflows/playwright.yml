@@ -16,8 +16,6 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-    - name: Setup Pages
-      uses: actions/configure-pages@v5
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
       with:
@@ -28,30 +26,49 @@ jobs:
       run: npx playwright install --with-deps
     - name: Run Playwright tests
       run: npx playwright test
-    - name: Generate Allure report
-      if: ${{ !cancelled() }}
-      run: npx allure generate --clean allure-results --output allure-report
+    - name: Generate Allure report (or fallback index)
+      if: ${{ always() }}
+      run: |
+        if [ -d "allure-results" ] && [ "$(ls -A allure-results 2>/dev/null)" ]; then
+          npx allure generate --clean allure-results --output allure-report
+        else
+          mkdir -p allure-report
+          cat > allure-report/index.html << 'EOF'
+          <!doctype html>
+          <html>
+          <head><meta charset="utf-8"><title>No Allure Results</title></head>
+          <body>
+            <h1>No Allure results found</h1>
+            <p>The workflow ran but did not produce any results in <code>allure-results/</code>.</p>
+          </body>
+          </html>
+          EOF
+        fi
     - name: Upload Playwright HTML report (artifact)
-      if: ${{ !cancelled() }}
+      if: ${{ always() }}
       uses: actions/upload-artifact@v4
       with:
         name: playwright-report
         path: playwright-report/
         retention-days: 7
     - name: Upload Allure report for Pages
-      if: ${{ !cancelled() }}
+      if: ${{ always() }}
       uses: actions/upload-pages-artifact@v3
       with:
         path: ./allure-report
 
   deploy:
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == 'push' && always() }}
     needs: test
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+    - name: Configure Pages
+      uses: actions/configure-pages@v5
+      with:
+        enablement: true
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
