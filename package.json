@@ -2,7 +2,12 @@
   "name": "e2e",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "playwright test",
+    "allure:generate": "allure generate --clean allure-results",
+    "allure:open": "allure open allure-report",
+    "allure": "npm run allure:generate && npm run allure:open"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
