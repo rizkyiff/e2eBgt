@@ -29,9 +29,10 @@ jobs:
       continue-on-error: true
     - name: Generate Allure report (or fallback index)
       if: ${{ always() }}
+      continue-on-error: true
       run: |
         if [ -d "allure-results" ] && [ "$(ls -A allure-results 2>/dev/null)" ]; then
-          npx allure generate --clean allure-results --output allure-report
+          npx allure generate --clean allure-results --output allure-report || true
         else
           mkdir -p allure-report
           cat > allure-report/index.html << 'EOF'
